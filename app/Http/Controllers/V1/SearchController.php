@@ -43,6 +43,24 @@ class SearchController extends Controller
 
     }
 
+    public function postalCodeAsKey(Request $request)
+    {
+        $query = PostalCode::resourceQuery();
+
+        $query = $this->filter(PostalCode::class, $query, $request);
+
+        $postalCodes = $query->get();
+        
+        $valueColumn = $request->value_column ?? 'town_fi';
+
+        $result = [];
+        foreach($postalCodes as $code) {
+            $result[$code->postal_code] = $code->$valueColumn;
+        }
+
+        return response($result, 200);
+    }
+
     protected function filter($model, $query, Request $request)
     {
         foreach($model::$allowedQueries as $filter => $column) {

@@ -20,4 +20,6 @@ Route::group(['prefix' => 'v1'], function () {
     Route::get('postal-codes', [SearchController::class, 'postalCodes']);
     Route::get('town-for-postal-code/{code}', [SearchController::class, 'townForPostalCode']);
     
+    Route::get('postal-code-as-key', [SearchController::class, 'postalCodeAsKey']);
+
 });
