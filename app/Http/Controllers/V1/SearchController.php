@@ -65,7 +65,7 @@ class SearchController extends Controller
     {
         foreach($model::$allowedQueries as $filter => $column) {
             if($request->input($filter)) {
-                $query->where($column, $request->input($filter));
+                $query->whereIn($column, explode(',', $request->input($filter)));
             }
         }
         return $query;
