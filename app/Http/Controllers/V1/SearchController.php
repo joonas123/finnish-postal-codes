@@ -37,8 +37,8 @@ class SearchController extends Controller
         $code = PostalCode::where('postal_code', $code)->first();
 
         return response([
-            'town_fi' => $code->town_fi,
-            'town_se' => $code->town_se,
+            'town_fi' => $code->town_fi ?? '',
+            'town_se' => $code->town_se ?? '',
         ], 200);
 
     }
