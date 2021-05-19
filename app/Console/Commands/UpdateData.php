@@ -8,6 +8,7 @@ use Illuminate\Support\Str;
 use App\Models\Region;
 use App\Models\PostalCode;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class UpdateData extends Command
 {
@@ -42,21 +43,18 @@ class UpdateData extends Command
      */
     public function handle()
     {
-          /**
-         * Converter
-         * Download newest PCF (Postcode File) file here: https://www.posti.fi/fi/asiakastuki/postinumerotiedostot
-         * Store it into storage/app/zip-codes
-         */
         $file = collect(Storage::files('posti-data'))
             ->filter(function($filePath) {
 
                 // Only dat files
-                return Str::endsWith($filePath, 'dat');
+                return Str::endsWith($filePath, 'dat') && Str::contains($filePath, Carbon::now()->format('Ymd'));
 
             })
             ->last();
 
         if(!$file) return 0;
+
+
 
         // Open up the file
         $contents = Storage::get($file);
