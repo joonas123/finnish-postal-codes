@@ -6,9 +6,14 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Models\Region;
 use App\Models\PostalCode;
+use App\Models\Coordinates;
 
 class SearchController extends Controller
 {
+    /**
+     * @param Request $request
+     * @return response
+     */
     public function regions(Request $request)
     {
         $query = Region::resourceQuery();
@@ -59,6 +64,12 @@ class SearchController extends Controller
         }
 
         return response($result, 200);
+    }
+
+    public function coordinates(Request $request)
+    {
+        $coords = Coordinates::search($request->search, $request->country);
+        return response($coords, 200);
     }
 
     protected function filter($model, $query, Request $request)
