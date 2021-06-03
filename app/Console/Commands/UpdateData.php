@@ -107,8 +107,8 @@ class UpdateData extends Command
         DB::beginTransaction();
         foreach($data as $zip => $info) {
 
-            $coords = Coordinates::search($info['city_fi'], 'FI');
-            
+            $coords = Coordinates::search($info['city_fi'], 'FI', false);
+
             PostalCode::create([
                 'region_id' => $regions->where('name_fi', $info['area_fi'])->first()->id,
                 'postal_code' => $zip,

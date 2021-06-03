@@ -71,7 +71,7 @@ class SearchController extends Controller
 
     public function coordinates(Request $request)
     {
-        $coords = Coordinates::search($request->search, $request->country);
+        $coords = Coordinates::search($request->search, $request->country, true);
         return response($coords, 200);
     }
 

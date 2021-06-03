@@ -10,12 +10,8 @@ class Coordinates extends Model
     use HasFactory;
 
 
-    static function search(String $search, $country) :array
+    static function search(String $search, $country, $useGoogleMaps) :array
     {
-        if (!config('services.google_maps.secret')) {
-            throw new \Exception('Google Maps API secret is not set!');
-        }
-
         $result = self::select('id', 'lat', 'lng', 'search', 'type', 'updated_at')
             ->where('search', $search)
             ->where('country', $country)
@@ -24,14 +20,56 @@ class Coordinates extends Model
         // if coordinates are found
         if ($result) {
 
-            // if data is not older than 1 month
-            if($result->updated_at->isAfter(now()->subMonth())) {
+            // if data is not older than 1 month or google maps search is disabled
+            if(!$useGoogleMaps || $result->updated_at->isAfter(now()->subMonth())) {
                 return [ 
                     'lat' => $result->lat,
                     'lng' => $result->lng,
                     'type' => $result->type,
                 ];
             }
+        } else if(!$useGoogleMaps) {
+            return [
+                'lat' => null,
+                'lng' => null,
+                'type' => null
+            ];
+        }
+
+        $mapsSearchResult = self::googleMapsSearch($search, $country);
+
+        if(!$mapsSearchResult['coords']) {
+            return [
+                'lat' => null,
+                'lng' => null,
+                'type' => null
+            ];
+        }
+
+        // Create new entry if this doesn't exist already
+        if (!$result) {
+            $result = new Coordinates;
+            $result->search = $search;
+            $result->country = $country;
+        }
+
+        $result->lat = $mapsSearchResult['lat'];
+        $result->lng = $mapsSearchResult['lng'];
+        $result->type = $mapsSearchResult['type'];
+
+        $result->save();
+
+        return [ 
+            'lat' => $result->lat, 
+            'lng' => $result->lng,
+            'type' => $result->type,
+        ];
+    }
+
+    static function googleMapsSearch($search, $country)
+    {
+        if (!config('services.google_maps.secret')) {
+            throw new \Exception('Google Maps API secret is not set!');
         }
 
         // build json query
@@ -49,7 +87,7 @@ class Coordinates extends Model
             return [
                 'lat' => null, 
                 'lng' => null,
-                'type' => null
+                'type' => null,
             ];
         }
 
@@ -57,23 +95,10 @@ class Coordinates extends Model
         $coords = $geoData->results[0]->geometry->location;
         $type = $geoData->results[0]->geometry->location_type;
 
-        // Create new entry if this doesn't exist already
-        if (!$result) {
-            $result = new Coordinates;
-            $result->search = $search;
-            $result->country = $country;
-        }
-
-        $result->lat = $coords->lat;
-        $result->lng = $coords->lng;
-        $result->type = $type;
-
-        $result->save();
-
-        return [ 
-            'lat' => $coords->lat, 
+        return [
+            'lat' => $coords->lat,
             'lng' => $coords->lng,
-            'type' => $type,
+            'type' => $type
         ];
     }
 }
