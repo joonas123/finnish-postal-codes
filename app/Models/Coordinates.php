@@ -38,12 +38,8 @@ class Coordinates extends Model
 
         $mapsSearchResult = self::googleMapsSearch($search, $country);
 
-        if(!$mapsSearchResult['coords']) {
-            return [
-                'lat' => null,
-                'lng' => null,
-                'type' => null
-            ];
+        if(!$mapsSearchResult['lat']) {
+            return $mapsSearchResult;
         }
 
         // Create new entry if this doesn't exist already
