@@ -10,7 +10,7 @@ class PostalCode extends Model
     use HasFactory;
 
     protected $fillable = [
-        'region_id', 'town_fi', 'town_se', 'postal_code'
+        'region_id', 'town_fi', 'town_se', 'postal_code', 'lat', 'lng'
     ];
 
     public static $allowedQueries = [
@@ -28,7 +28,7 @@ class PostalCode extends Model
 
     static function resourceQuery()
     {
-        return self::select('town_fi', 'town_se', 'postal_code', 'regions.name_fi as region_name_fi', 'regions.name_se as region_name_se')
+        return self::select('town_fi', 'town_se', 'postal_code', 'lat', 'lng', 'regions.name_fi as region_name_fi', 'regions.name_se as region_name_se')
             ->leftJoin('regions', 'regions.id', 'postal_codes.region_id');
     }
 }

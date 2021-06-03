@@ -44,6 +44,9 @@ class SearchController extends Controller
         return response([
             'town_fi' => $code->town_fi ?? '',
             'town_se' => $code->town_se ?? '',
+            'postal_code' => $code->postal_code ?? '',
+            'lat' => $code->lat ?? null,
+            'lng' => $code->lng ?? null
         ], 200);
 
     }

@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Region;
 use App\Models\PostalCode;
+use App\Models\Coordinates;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -105,11 +106,16 @@ class UpdateData extends Command
 
         DB::beginTransaction();
         foreach($data as $zip => $info) {
+
+            $coords = Coordinates::search($info['city_fi'], 'FI');
+            
             PostalCode::create([
                 'region_id' => $regions->where('name_fi', $info['area_fi'])->first()->id,
                 'postal_code' => $zip,
                 'town_fi' => $info['city_fi'],
                 'town_se' => $info['city_se'],
+                'lat' => $coords['lat'],
+                'lng' => $coords['lng']
             ]);
         }
         DB::commit();
