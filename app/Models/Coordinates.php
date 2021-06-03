@@ -10,7 +10,7 @@ class Coordinates extends Model
     use HasFactory;
 
 
-    static function search(String $search, $country = 'FI') :array
+    static function search(String $search, $country) :array
     {
         if (!config('services.google_maps.secret')) {
             throw new \Exception('Google Maps API secret is not set!');
