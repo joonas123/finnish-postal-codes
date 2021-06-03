@@ -14,8 +14,8 @@ class AddLatLngToPostalCodesTable extends Migration
     public function up()
     {
         Schema::table('postal_codes', function (Blueprint $table) {
-            $table->double('lat', 10, 6)->nullable();
-            $table->double('lng', 10, 6)->nullable();
+            $table->double('lat', 10, 6)->after('town_fi')->nullable();
+            $table->double('lng', 10, 6)->after('lat')->nullable();
         });
     }
 
