@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use Carbon\Carbon;
 use ZipArchive;
+use GuzzleHttp\Client;
 
 class RetrievePostalDataFromPosti extends Command
 {
@@ -13,7 +14,7 @@ class RetrievePostalDataFromPosti extends Command
      *
      * @var string
      */
-    protected $signature = 'retrieve_postal_data_from_posti';
+    protected $signature = 'retrieve_postal_data_from_posti {date?}';
 
     /**
      * The console command description.
@@ -39,11 +40,14 @@ class RetrievePostalDataFromPosti extends Command
      */
     public function handle()
     {
-        $date = Carbon::now()->format('Ymd');
+        $date = $this->date();
         $storePath = storage_path("app/posti-zips/$date.zip");
 
         try {
-            $fileContents = file_get_contents("https://www.posti.fi/webpcode/PCF_$date.zip");
+            
+            $client = new Client();
+            $response = $client->request('GET', "https://www.posti.fi/webpcode/PCF_$date.zip");
+            $fileContents = $response->getBody()->getContents();
             file_put_contents($storePath, $fileContents);
 
             $this->unzipFile($storePath);
@@ -52,6 +56,13 @@ class RetrievePostalDataFromPosti extends Command
         }
 
         return 0;
+    }
+
+    protected function date()
+    {
+        return $this->argument('date')
+            ? $this->argument('date')
+            : Carbon::now()->format('Ymd');
     }
     
     protected function unzipFile($file)
